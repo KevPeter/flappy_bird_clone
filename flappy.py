@@ -17,7 +17,37 @@ pygame.display.set_caption("Flappy Bird")
 backgroundImg = pygame.image.load(os.path.join("images", "background.png")).convert()
 backgroundX = 0
 backgroundX2 = backgroundImg.get_width()
-dx = 1.4        # background x-axis movement
+dx = 2        # background x-axis movement
+
+# create class for player
+class player(object):
+    riseImg = pygame.image.load(os.path.join("images", "bird-rise.png")).convert()
+    fallImg = pygame.image.load(os.path.join("images", "bird-fall.png")).convert()
+
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.rising = False
+        self.hitbox = [x, y, width, height]
+        self.birdVel = -9
+        self.maxBirdVel = 10
+        self.birdAccel = 1
+        self.flapAccel = -9
+
+    def drawBird(self, screen):
+        self.y += self.birdVel
+        if self.birdVel < self.maxBirdVel and not self.rising:
+            self.birdVel += self.birdAccel
+        if self.rising:
+            self.birdVel = self.flapAccel
+            self.rising = False
+
+        self.hitbox[1] = self.y
+        screen.blit(self.riseImg, (self.x, self.y))
+        pygame.draw.rect(screen, (255, 0, 0), self.hitbox, 2)
+
 
 # create class for pipe
 class pipe(object):
@@ -27,7 +57,7 @@ class pipe(object):
     def __init__(self, x, y, width, height):                # (pipe) constructor function for pipe
         self.x = x
         self.y = y
-        self.yTop = y - 400
+        self.yTop = y - 450
         self.width = width
         self.height = height
         self.hitbox = [x, y, width, height]
@@ -44,10 +74,13 @@ class pipe(object):
 
     # def collision(self, rect):                              # (pipe) function to check collisions
 
+bird = player(250, 240, 34, 24)
+
 
 def DrawScreen():                                             # updates screen drawings
     screen.blit(backgroundImg, (backgroundX, 0))
     screen.blit(backgroundImg, (backgroundX2, 0))
+    bird.drawBird(screen)
 
     for obstacle in obstacles:
         obstacle.drawPipe(screen)       # originally pipeGame.drawPipe
@@ -56,7 +89,7 @@ def DrawScreen():                                             # updates screen d
 
 
 clock = pygame.time.Clock()
-pygame.time.set_timer(USEREVENT+1, 2000)
+pygame.time.set_timer(USEREVENT+1, 1800)
 speed = 60
 # obstacle is list of pipes to display on screen
 obstacles = []
@@ -66,7 +99,6 @@ obstacles = []
 running = True
 while running:                                          # game loop start
 
-    DrawScreen()
     backgroundX -= dx
     backgroundX2 -= dx
     #pipeGame.x -= dx
@@ -76,6 +108,10 @@ while running:                                          # game loop start
     if backgroundX2 < backgroundImg.get_width() * -1:
         backgroundX2 = backgroundImg.get_width()
 
+    flapAccel = -9
+    birdVel = -9
+    birdAccel = 1
+    maxBirdVel = 10
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -83,7 +119,12 @@ while running:                                          # game loop start
 
         if event.type == pygame.USEREVENT+1:
             r = random.randrange(100, 420)
-            obstacles.append(pipe(600, r, 52, 320))
+            obstacles.append(pipe(700, r, 52, 320))
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_SPACE]:
+        bird.rising = True
 
     clock.tick(speed)
+    DrawScreen()
 
