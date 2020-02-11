@@ -72,7 +72,18 @@ class pipe(object):
         pygame.draw.rect(screen, (255, 0, 0), self.hitbox, 2)
         self.x -= dx
 
-    # def collision(self, rect):                              # (pipe) function to check collisions
+    def collision(self, box):                              # (pipe) function to check collisions
+        if box[0] + box[2] > self.hitbox[0] and box[0] < self.hitbox[0] + self.hitbox[2]:
+            if box[1] + box[3] > self.hitbox[1]:
+                print("bottom")
+                return True
+
+        if box[0] + box[2] > self.hitbox2[0] and box[0] < self.hitbox2[0] + self.hitbox2[2]:
+            if box[1] < self.hitbox2[1] + self.hitbox2[3]:
+                print("top")
+                return True
+        return False
+
 
 bird = player(250, 240, 34, 24)
 
@@ -95,13 +106,16 @@ speed = 60
 obstacles = []
 
 
-
 running = True
 while running:                                          # game loop start
 
+    for obstacle in obstacles:
+        if obstacle.collision(bird.hitbox):
+            print("hit")
+
     backgroundX -= dx
     backgroundX2 -= dx
-    #pipeGame.x -= dx
+    # pipeGame.x -= dx
 
     if backgroundX < backgroundImg.get_width() * -1:
         backgroundX = backgroundImg.get_width()
