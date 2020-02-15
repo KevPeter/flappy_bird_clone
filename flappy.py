@@ -75,20 +75,22 @@ class pipe(object):
     def collision(self, box):                              # (pipe) function to check collisions
         if box[0] + box[2] > self.hitbox[0] and box[0] < self.hitbox[0] + self.hitbox[2]:
             if box[1] + box[3] > self.hitbox[1]:
+                endGame()
                 print("bottom")
                 return True
 
         if box[0] + box[2] > self.hitbox2[0] and box[0] < self.hitbox2[0] + self.hitbox2[2]:
             if box[1] < self.hitbox2[1] + self.hitbox2[3]:
                 print("top")
+                endGame()
                 return True
         return False
 
 
-bird = player(250, 240, 34, 24)
+bird = player(250, 200, 34, 24)
 
 
-def DrawScreen():                                             # updates screen drawings
+def drawScreen():                                             # updates screen drawings
     screen.blit(backgroundImg, (backgroundX, 0))
     screen.blit(backgroundImg, (backgroundX2, 0))
     bird.drawBird(screen)
@@ -97,6 +99,37 @@ def DrawScreen():                                             # updates screen d
         obstacle.drawPipe(screen)       # originally pipeGame.drawPipe
 
     pygame.display.update()
+
+
+def endGame():
+    global obstacles
+    obstacles = []
+    pause = True
+
+    while pause:
+        pygame.time.delay(500)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pause = False
+                pygame.quit()
+                exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.time.delay(250)
+                pause = False
+                bird.y = 200
+                bird.rising = True
+
+        screen.blit(backgroundImg, (0, 0))
+        font = pygame.font.SysFont('Arial', 80)
+        font2 = pygame.font.SysFont('Arial', 30)
+        gameOverDisplay = font.render('Game Over..', 1, (255, 255, 255))
+        screen.blit(gameOverDisplay, (W / 2 - gameOverDisplay.get_width() / 2, 200))
+        continueGame = font2.render('Click anywhere to continue', 1, (255, 255, 255))
+        screen.blit(continueGame, (W / 2 - continueGame.get_width() / 2, 325))
+        pygame.display.update()
+
 
 
 clock = pygame.time.Clock()
@@ -132,7 +165,7 @@ while running:                                          # game loop start
             running = False
 
         if event.type == pygame.USEREVENT+1:
-            r = random.randrange(100, 420)
+            r = random.randrange(160, 420)
             obstacles.append(pipe(700, r, 52, 320))
 
     keys = pygame.key.get_pressed()
@@ -140,5 +173,5 @@ while running:                                          # game loop start
         bird.rising = True
 
     clock.tick(speed)
-    DrawScreen()
+    drawScreen()
 
